@@ -21,7 +21,7 @@ import {
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 
-const partyAudioUrl = "https://raw.githubusercontent.com/NumairAITokens404/freshers-project/main/client/public/audio/tame-impala-loser.mp3";
+const partyAudioUrl = "/audio/tame-impala-loser.mp3";
 
 const eventFacts = [
   { icon: CalendarDaysIcon, label: "Friday · 17 October", value: "Doors at 5:30 PM" },

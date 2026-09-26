@@ -63,7 +63,7 @@ a { color: inherit; text-decoration: none; }
 .nav-cta:hover, .primary-button:hover, .submit-button:hover { background: var(--acid); color: var(--night); transform: translateY(-3px); box-shadow: 0 .8rem 2rem rgba(239,255,63,.17); }
 .nav-cta:active, .primary-button:active, .submit-button:active, .secondary-button:active { transform: scale(.97); }
 .nav-actions { display: flex; align-items: center; gap: .55rem; }
-.nav-music-toggle { display: inline-flex; align-items: center; justify-content: center; gap: .38rem; min-height: 2.5rem; padding: 0 .75rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(7,4,13,.7); color: var(--acid); cursor: pointer; font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.nav-music-toggle { display: none; align-items: center; justify-content: center; gap: .38rem; min-height: 2.5rem; padding: 0 .75rem; border: 1px solid var(--line); border-radius: 999px; background: rgba(7,4,13,.7); color: var(--acid); cursor: pointer; font-size: .58rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .nav-music-toggle.is-playing, .nav-music-toggle:hover { border-color: var(--acid); background: rgba(239,255,63,.12); }
 .nav-music-toggle svg, .music-toggle svg { color: var(--cyan); }
 .menu-toggle { display: none; border: 1px solid var(--line); background: rgba(7,4,13,.7); border-radius: 50%; width: 2.5rem; height: 2.5rem; place-items: center; }
@@ -217,6 +217,7 @@ input:focus { border-color: var(--pink); box-shadow: 0 1px 0 var(--pink); }
 .closing-section h2 { position: relative; z-index: 2; text-align: center; font-size: clamp(6rem,16vw,15rem); margin: 0; }
 .closing-section h2 em { color: var(--acid); }
 .closing-topline, .closing-bottomline { z-index: 2; }
+.closing-topline { top: 2rem; bottom: auto; }
 .closing-topline span:first-child { color: var(--pink); }
 .closing-bottomline { bottom: 2rem; color: var(--muted); }
 .closing-bottomline a { display: inline-flex; align-items: center; gap: .4rem; color: var(--cyan); }
@@ -274,6 +275,7 @@ input:focus { border-color: var(--pink); box-shadow: 0 1px 0 var(--pink); }
   .closing-section { min-height: 33rem; }
   .closing-section h2 { font-size: 7.5rem; }
   .closing-topline, .closing-bottomline { left: 1.1rem; right: 1.1rem; font-size: .48rem; }
+  .closing-topline { top: 1.2rem; bottom: auto; }
   .closing-bottomline { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 9rem); align-items: end; gap: 1rem; line-height: 1.35; }
   .closing-bottomline span { max-width: none; min-width: 0; overflow-wrap: anywhere; }
   .closing-bottomline a { min-width: 0; justify-self: end; max-width: 9rem; text-align: right; overflow-wrap: anywhere; }
