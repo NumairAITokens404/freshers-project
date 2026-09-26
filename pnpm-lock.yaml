@@ -7,11 +7,6 @@ settings:
 overrides:
   tailwindcss>nanoid: 3.3.7
 
-patchedDependencies:
-  wouter@3.7.1:
-    hash: 0a9a471176254dcc6354f8324c122711f12888bf232e61f4573eee1e5aa02d92
-    path: patches/wouter@3.7.1.patch
-
 importers:
 
   .:
@@ -210,7 +205,7 @@ importers:
         version: 1.1.2(@types/react-dom@19.2.1(@types/react@19.2.1))(@types/react@19.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       wouter:
         specifier: 3.7.1
-        version: 3.7.1(patch_hash=0a9a471176254dcc6354f8324c122711f12888bf232e61f4573eee1e5aa02d92)(react@19.2.1)
+        version: 3.7.1(react@19.2.1)
       zod:
         specifier: ^4.1.12
         version: 4.1.12
@@ -9084,7 +9079,7 @@ snapshots:
       siginfo: 2.0.0
       stackback: 0.0.2
 
-  wouter@3.7.1(patch_hash=0a9a471176254dcc6354f8324c122711f12888bf232e61f4573eee1e5aa02d92)(react@19.2.1):
+  wouter@3.7.1(react@19.2.1):
     dependencies:
       mitt: 3.0.1
       react: 19.2.1
