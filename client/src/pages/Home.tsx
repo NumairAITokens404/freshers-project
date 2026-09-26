@@ -23,7 +23,7 @@ import { trpc } from "@/lib/trpc";
 
 const eventFacts = [
   { icon: CalendarDaysIcon, label: "Friday · 17 October 2026", value: "10:00 AM — 4:00 PM" },
-  { icon: MapPin, label: "The Grand Atrium", value: "CSB Block · Main Campus" },
+  { icon: MapPin, label: "The Grand Atrium", value: "D-Block · Main Campus" },
   { icon: Users, label: "CSB · Juniors & Seniors", value: "One celebration. All of us." },
 ];
 
