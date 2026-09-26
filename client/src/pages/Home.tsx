@@ -21,21 +21,24 @@ import {
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 
+const partyAudioUrl = "https://raw.githubusercontent.com/NumairAITokens404/freshers-project/main/client/public/audio/tame-impala-loser.mp3";
+
 const eventFacts = [
-  { icon: CalendarDaysIcon, label: "Friday · 17 October 2026", value: "10:00 AM — 4:00 PM" },
-  { icon: MapPin, label: "The Grand Atrium", value: "D-Block · Main Campus" },
-  { icon: Users, label: "CSB · Juniors & Seniors", value: "One celebration. All of us." },
+  { icon: CalendarDaysIcon, label: "Friday · 17 October", value: "Doors at 5:30 PM" },
+  { icon: MapPin, label: "The Grand Atrium", value: "CSB Block · Main Campus" },
+  { icon: Users, label: "CSB · Freshers cohort", value: "One night. All of us." },
 ];
 
-const runningLine = ["CSB / FRESHERS 26", "MAKE SOME NOISE", "WELCOME TO THE NEXT CHAPTER", "CSB / FRESHERS 26"];
+const runningLine = ["CSB / FRESHERS", "LIGHTS DOWN", "DANCE FLOOR OPEN", "CSB / FRESHERS"];
 
 function CalendarDaysIcon(props: React.ComponentProps<typeof Clock3>) {
   return <Clock3 {...props} />;
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({ number, children }: { number: string; children: React.ReactNode }) {
   return (
     <div className="section-label">
+      <span className="section-label__number">{number}</span>
       <span>{children}</span>
     </div>
   );
@@ -110,10 +113,8 @@ export default function Home() {
       audio.volume = 0.34;
       void audio.play().then(() => setMusicPlaying(true)).catch(() => setMusicPlaying(false));
     };
-
     window.addEventListener("pointerdown", startMusic, { once: true });
     window.addEventListener("keydown", startMusic, { once: true });
-
     return () => {
       window.removeEventListener("pointerdown", startMusic);
       window.removeEventListener("keydown", startMusic);
@@ -134,20 +135,18 @@ export default function Home() {
     const audio = audioRef.current;
     if (!audio) return;
     audio.volume = 0.34;
-
     if (audio.paused) {
-      void audio.play().then(() => setMusicPlaying(true)).catch(() => toast.error("Tap once more to let the browser start the music."));
-      return;
+      void audio.play().then(() => setMusicPlaying(true)).catch(() => toast.error("Tap once more to start the music."));
+    } else {
+      audio.pause();
+      setMusicPlaying(false);
     }
-
-    audio.pause();
-    setMusicPlaying(false);
   };
 
   const handlePhotoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    updateForm("photoUrl", file.name);
+    toast.success(`${file.name} selected — add its Google Drive link before submitting.`);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -156,35 +155,35 @@ export default function Home() {
       onSuccess: () => {
         setSubmitted(true);
         setForm({ name: "", rollNo: "", email: "", photoUrl: "" });
-        toast.success("You’re on the list — see you at the celebration.");
+        toast.success("You’re on the list — see you under the lights.");
       },
       onError: (error: { message?: string }) => toast.error(error.message || "Could not save your registration. Try again."),
     });
   };
 
   return (
-    <div ref={shellRef} className="site-shell">
-      <div className="pointer-glow" aria-hidden="true" />
+      <div ref={shellRef} className="site-shell">
+        <div className="pointer-glow" aria-hidden="true" />
+      <div className="disco-lightfield" aria-hidden="true" />
       <div className="noise-layer" aria-hidden="true" />
-      <audio ref={audioRef} src="/audio/tame-impala-loser.mp3" loop preload="auto" playsInline />
+      <audio ref={audioRef} src={partyAudioUrl} loop preload="auto" playsInline />
 
       <header className="site-nav">
         <button className="brand-lockup" onClick={() => scrollTo("top")} aria-label="Back to top">
           <span className="brand-mark">CSB</span>
-          <span className="brand-copy">Freshers <b>26</b></span>
+          <span className="brand-copy">Freshers</span>
         </button>
         <nav className={`nav-links ${menuOpen ? "is-open" : ""}`}>
-          <button onClick={() => scrollTo("about")}>The gathering</button>
-          <button onClick={() => scrollTo("lineup")}>Line-up</button>
-          <button onClick={() => scrollTo("register")}>Register</button>
+          <button onClick={() => scrollTo("about")} >The vibe</button>
+          <button onClick={() => scrollTo("lineup")} >The set</button>
+          <button onClick={() => scrollTo("register")} >Guest list</button>
         </nav>
         <button className="nav-cta" onClick={() => scrollTo("register")}>
           <span>Get your pass</span><ArrowUpRight size={15} />
         </button>
         <div className="nav-actions">
           <button className={`nav-music-toggle ${musicPlaying ? "is-playing" : ""}`} onClick={toggleMusic} aria-label={musicPlaying ? "Pause background music" : "Play background music"}>
-            <Music2 size={18} />
-            <span>{musicPlaying ? "On" : "Play"}</span>
+            <Music2 size={18} /><span>{musicPlaying ? "On" : "Play"}</span>
           </button>
           <button className="menu-toggle" onClick={() => setMenuOpen((open) => !open)} aria-label="Toggle menu">
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -193,27 +192,37 @@ export default function Home() {
       </header>
 
       <button className={`music-toggle ${musicPlaying ? "is-playing" : ""}`} onClick={toggleMusic} aria-label={musicPlaying ? "Pause background music" : "Play background music"}>
-        <Music2 size={16} />
-        <span>{musicPlaying ? "Sound on" : "Play song"}</span>
+        <Music2 size={16} /><span>{musicPlaying ? "Sound on" : "Play song"}</span>
       </button>
 
       <main id="top">
         <section className="hero-section">
-          <div className="hero-grid" aria-hidden="true" />
+        <div className="hero-grid" aria-hidden="true" />
+        <div className="party-ceiling" aria-hidden="true">
+          <span className="hanging-decor decor-ball decor-ball-one" />
+          <span className="hanging-decor decor-ball decor-ball-two" />
+          <span className="hanging-decor decor-ball decor-ball-three" />
+          <span className="hanging-decor decor-disc decor-disc-one" />
+          <span className="hanging-decor decor-disc decor-disc-two" />
+          <span className="hanging-decor decor-star decor-star-one">✦</span>
+          <span className="hanging-decor decor-star decor-star-two">✦</span>
+          <span className="hanging-decor decor-star decor-star-three">✦</span>
+        </div>
           <div className="hero-orbit orbit-one" aria-hidden="true" />
           <div className="hero-orbit orbit-two" aria-hidden="true" />
           <motion.div className="hero-orb" aria-hidden="true" animate={{ opacity: [0.88, 1, 0.88] }} transition={{ duration: 9, ease: "easeInOut", repeat: Infinity }}>
-            <div className="orb-core"><span>CSB</span></div>
+            <span className="orb-cord" />
+            <div className="orb-core" aria-label="Mirror ball" />
             <div className="orb-ring ring-a" />
             <div className="orb-ring ring-b" />
-            <span className="orb-caption">FRESHERS<br />DAY</span>
+            <span className="orb-caption">CSB<br />AFTER DARK</span>
           </motion.div>
           <motion.div className="hero-copy" initial={{ opacity: 0, x: -24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.85, delay: 0.12, ease: [0.23, 1, 0.32, 1] }}>
-            <div className="eyebrow"><span className="status-dot" /> CSB · Computer Science &amp; Business Systems</div>
+            <div className="eyebrow"><span className="status-dot" /> CSB · Computer Science &amp; Business Systems · After Dark</div>
             <h1>
-              Meet the<br /><em>next</em> <span className="outlined-word">chapter</span>
+              Meet me<br /><em>under</em> <span className="outlined-word">the lights</span>
             </h1>
-            <p className="hero-intro">A new class. A new rhythm.<br />One unforgettable day together.</p>
+            <p className="hero-intro">Lights down. Volume up.<br />One unforgettable night together.</p>
             <div className="hero-actions">
               <button className="primary-button" onClick={() => scrollTo("register")}>
                 <span>Reserve your spot</span><ArrowUpRight size={17} />
@@ -225,36 +234,37 @@ export default function Home() {
           </motion.div>
           <div className="hero-side-note"><span>Scroll to feel it</span><div className="side-line" /></div>
           <div className="hero-bottomline">
-            <span>17 OCTOBER 2026</span><span>THE GRAND ATRIUM</span><span>10 AM — 4 PM</span>
+            <span>17 / OCTOBER</span><span>THE GRAND ATRIUM</span><span>5:30 PM — LATE</span>
           </div>
         </section>
 
-        <div className="marquee" aria-label="CSB Freshers 26">
+        <div className="marquee" aria-label="CSB Freshers">
           <div className="marquee-track">{[...runningLine, ...runningLine].map((item, index) => <span key={`${item}-${index}`}>{item}<b>✳</b></span>)}</div>
         </div>
 
         <section id="about" className="about-section section-pad">
           <div className="section-head">
-            <SectionLabel>The gathering</SectionLabel>
-            <p className="section-kicker">Not an orientation.<br /><strong>A proper welcome.</strong></p>
+            <SectionLabel number="01">The night</SectionLabel>
+            <p className="section-kicker">No boring welcome.<br /><strong>Just the right kind of loud.</strong></p>
           </div>
           <div className="about-layout">
             <Reveal className="about-statement">
-              <p>We’ve been in the same classrooms, same corridors, same group chats.</p>
-              <p className="statement-large">Now let’s make a memory that feels <em>nothing</em> like a timetable.</p>
-              <span className="hand-note">bring your people <span>↗</span></span>
+              <p>We’ve done the classrooms, corridors, and group chats.</p>
+              <p className="statement-large">Now let’s make a memory that feels <em>everything</em> like a dance floor.</p>
+              <span className="hand-note">bring your whole crew <span>↗</span></span>
             </Reveal>
             <Reveal className="about-detail">
-              <p>Fresh faces, familiar energy. A day of performances, stories, a shared dance floor, and the first page of everything that comes next.</p>
+              <div className="detail-number">∞</div>
+              <p>Fresh faces, mirror-ball energy. An evening of music, neon, tiny dance floors, and the first beat of everything that comes next.</p>
               <div className="detail-rule" />
-              <p className="detail-small">Dress code: come as the version of you that is ready to celebrate.</p>
+              <p className="detail-small">Dress code: chrome, colour, and the version of you that stays out a little later.</p>
             </Reveal>
           </div>
           <div className="facts-grid">
-            {eventFacts.map((fact) => {
+            {eventFacts.map((fact, index) => {
               const Icon = fact.icon;
               return <Reveal key={fact.label} className="fact-card" >
-                <Icon size={20} strokeWidth={1.5} />
+                <span className="fact-index">0{index + 1}</span><Icon size={20} strokeWidth={1.5} />
                 <div><strong>{fact.label}</strong><span>{fact.value}</span></div>
               </Reveal>;
             })}
@@ -263,20 +273,18 @@ export default function Home() {
 
         <section id="lineup" className="lineup-section section-pad">
           <div className="section-head">
-            <SectionLabel>The schedule</SectionLabel>
-            <p className="section-kicker">A little bit of<br /><strong>everything.</strong></p>
+            <SectionLabel number="02">The frequency</SectionLabel>
+            <p className="section-kicker">The night is<br /><strong>just getting started.</strong></p>
           </div>
           <Reveal className="lineup-intro">
-            <h2>Plug in.<br /><span>Open up.</span></h2>
-            <p>A full day built to bring juniors and seniors together. Arrive curious, leave with stories worth keeping.</p>
+            <h2>Lights down.<br /><span>Dance on.</span></h2>
+            <p>Expect a night of lasers, loud hooks, mirror-ball moments, and the people you will remember.</p>
           </Reveal>
           <div className="lineup-list">
             {[
-              ["01", "Le Grand Accueil", "10:00 — 10:45 AM", "A warm welcome for our guests, juniors, and seniors."],
-              ["02", "The Spotlight Assembly", "10:45 AM — 12:00 PM", "Performances by juniors and seniors, sharing one stage."],
-              ["03", "Common Pulse", "12:00 — 1:00 PM", "The floor opens and both batches move together."],
-              ["04", "Convivium Magnum", "1:00 — 2:00 PM", "The grand feast: good food, long tables, and louder conversations."],
-              ["05", "Ludi Romani", "2:00 — 4:00 PM", "Post-lunch games, surprises, and one last burst of collective chaos."],
+              ["01", "Mirror-ball warm-up", "5:30 — 6:30 PM", "Meet, mingle, find the glow."],
+              ["02", "Neon frequency", "6:30 — 8:00 PM", "A live set built for the first big chorus."],
+              ["03", "Open dance floor", "8:00 PM — late", "No agenda. Just good people and brighter lights."],
             ].map(([number, title, time, description], index) => <motion.div key={number} className="lineup-row reveal" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} whileHover={{ x: 8, backgroundColor: "rgba(237,242,237,.055)" }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.55, delay: index * 0.06, ease: [0.23, 1, 0.32, 1] }}>
               <span className="row-number">{number}</span><div className="row-title"><h3>{title}</h3><p>{description}</p></div><div className="row-time"><Clock3 size={15} />{time}</div><ArrowUpRight className="row-arrow" size={22} />
             </motion.div>)}
@@ -286,40 +294,38 @@ export default function Home() {
         <section className="manifesto-section">
           <div className="manifesto-scan" aria-hidden="true" />
           <Reveal className="manifesto-content">
-            <span className="manifesto-overline"><Sparkles size={14} /> For the curious ones</span>
-            <h2>Start<br /><em>somewhere.</em></h2>
-            <p>The people you meet here might become the stories you tell long after the syllabus ends.</p>
+            <span className="manifesto-overline"><Sparkles size={14} /> For the night owls</span>
+            <h2>Find<br /><em>your rhythm.</em></h2>
+            <p>The people you meet here might become the stories you tell long after the last song ends.</p>
             <button className="circle-button" onClick={() => scrollTo("register")} aria-label="Register now"><ArrowDown size={20} /></button>
           </Reveal>
-          <div className="manifesto-orb" aria-hidden="true"><div className="manifesto-orb-inner">CSB<br /><span>TOGETHER</span></div></div>
+          <div className="manifesto-orb" aria-hidden="true"><div className="manifesto-orb-inner">CSB<br /><span>DISCO</span></div></div>
         </section>
 
         <section id="register" className="register-section section-pad">
           <div className="section-head">
-            <SectionLabel>Your entry</SectionLabel>
-            <p className="section-kicker">Make it<br /><strong>official.</strong></p>
+            <SectionLabel number="03">Your entry</SectionLabel>
+            <p className="section-kicker">Bring your<br /><strong>best energy.</strong></p>
           </div>
           <div className="register-layout">
             <Reveal className="register-copy">
-              <h2>Save<br /><em>your seat.</em></h2>
-              <p>Drop your details below and upload a photo from your device. The form is ready for the Google Drive handoff once the Drive connection is added.</p>
+              <h2>Join<br /><em>the dance floor.</em></h2>
+              <p>Drop your details below and keep your Google Drive photo link handy. We’re building the guest list for the freshest night on campus.</p>
               <div className="form-note"><ShieldCheck size={16} /><span>Your details are only for the CSB Freshers guest list.</span></div>
-              <div className="register-stamp"><Ticket size={17} /><span>CSB<br /><b>FRESHERS 26</b></span></div>
+              <div className="register-stamp"><Ticket size={17} /><span>CSB<br /><b>FRESHERS</b></span></div>
             </Reveal>
             <Reveal className="register-form-card">
               {submitted ? <div className="success-state"><div className="success-icon"><Check size={27} /></div><span className="eyebrow">Registration confirmed</span><h3>You’re on the list.</h3><p>Keep an eye on your inbox for the final details. Until then — tell your crew.</p><button className="secondary-button" onClick={() => setSubmitted(false)}>Register another person <ArrowUpRight size={15} /></button></div> : <form onSubmit={handleSubmit}>
-                <div className="form-topline"><span>Guest details</span><span>Complete your pass</span></div>
+                <div className="form-topline"><span>Guest details</span><span>01 / 04</span></div>
                 <label><span>Full name</span><input required value={form.name} onChange={(event) => updateForm("name", event.target.value)} placeholder="Your name" /></label>
                 <div className="form-split"><label><span>Roll number</span><input required value={form.rollNo} onChange={(event) => updateForm("rollNo", event.target.value)} placeholder="CSB26..." /></label><label><span>Email</span><input required type="email" value={form.email} onChange={(event) => updateForm("email", event.target.value)} placeholder="you@email.com" /></label></div>
+                <label><span>Google Drive photo link</span><input required type="url" value={form.photoUrl} onChange={(event) => updateForm("photoUrl", event.target.value)} placeholder="https://drive.google.com/..." /></label>
                 <div className="photo-upload-field">
-                  <span>Photo</span>
-                  <input ref={photoInputRef} className="sr-only" required type="file" accept="image/*" onChange={handlePhotoSelect} />
-                  <button type="button" className="upload-button" onClick={() => photoInputRef.current?.click()}>
-                    <Camera size={16} />
-                    <span>{form.photoUrl || "Upload photo"}</span>
-                  </button>
+                  <span>Or choose a photo first</span>
+                  <input ref={photoInputRef} className="sr-only" type="file" accept="image/*" onChange={handlePhotoSelect} />
+                  <button type="button" className="upload-button" onClick={() => photoInputRef.current?.click()}><Camera size={16} /><span>Choose image from device</span></button>
                 </div>
-                <p className="input-hint"><Camera size={14} /> Choose an image now; Drive delivery can be connected on the backend next.</p>
+                <p className="input-hint"><Camera size={14} /> Set your Drive photo to “Anyone with the link can view”.</p>
                 <button disabled={register.isPending} className="submit-button" type="submit"><span>{register.isPending ? "Saving your spot..." : "Add me to the list"}</span><ArrowUpRight size={17} /></button>
               </form>}
             </Reveal>
@@ -327,12 +333,12 @@ export default function Home() {
         </section>
 
         <section className="closing-section">
-          <div className="closing-topline"><span>CSB / FRESHERS 26</span><span>THE FIRST OF MANY</span></div>
+          <div className="closing-topline"><span>CSB / FRESHERS</span><span>THE FIRST OF MANY</span></div>
           <Reveal><h2>See you<br /><em>there.</em></h2></Reveal>
           <div className="closing-bottomline"><span>Computer Science &amp; Business Systems</span><a href="https://instagram.com" target="_blank" rel="noreferrer">Follow the energy <Instagram size={15} /></a></div>
         </section>
       </main>
-      <footer className="site-footer"><span>Made for the next chapter.</span><span>CSB / 2026</span><span><Music2 size={13} /> Sound on in spirit</span></footer>
+      <footer className="site-footer"><span>Made for after dark.</span><span>CSB / AFTER DARK</span><span><Music2 size={13} /> Sound on in spirit</span></footer>
     </div>
   );
 }

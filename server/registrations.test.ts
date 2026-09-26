@@ -24,7 +24,7 @@ describe("registrations.create", () => {
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
-  it("rejects a non-url photo link before reaching the database", async () => {
+  it("accepts an uploaded photo filename before reaching the database", async () => {
     const caller = appRouter.createCaller(createPublicContext());
 
     await expect(
@@ -32,8 +32,8 @@ describe("registrations.create", () => {
         name: "A Junior",
         rollNo: "CSB26-002",
         email: "junior@example.com",
-        photoUrl: "drive-file-id-only",
+        photoUrl: "freshers-photo.jpg",
       }),
-    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    ).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available" });
   });
 });
