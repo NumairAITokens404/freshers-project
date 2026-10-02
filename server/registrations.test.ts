@@ -1,39 +1,75 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
+import { createRegistration } from "./db";
+import { identitySchema } from "../shared/registration";
 import type { TrpcContext } from "./_core/context";
-
-function createPublicContext(): TrpcContext {
-  return {
-    user: null,
-    req: { protocol: "https", headers: {} } as TrpcContext["req"],
-    res: {} as TrpcContext["res"],
-  };
-}
-
-describe("registrations.create", () => {
-  it("rejects an invalid email before reaching the database", async () => {
-    const caller = appRouter.createCaller(createPublicContext());
-
-    await expect(
-      caller.registrations.create({
-        name: "A Junior",
-        rollNo: "CSB26-001",
-        email: "not-an-email",
-        photoUrl: "https://drive.google.com/file/d/photo",
-      }),
-    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+vi.mock("./db", () => ({ createRegistration: vi.fn() }));
+const valid = {
+  name: "A Junior",
+  rollNo: "25261A3201",
+  email: "juniorcsb253201@mgit.ac.in",
+};
+const caller = appRouter.createCaller({
+  user: null,
+  req: { protocol: "https", headers: {} },
+  res: {},
+} as TrpcContext);
+beforeEach(() => {
+  vi.mocked(createRegistration).mockReset();
+});
+describe("CSB entry validation", () => {
+  it.each([
+    valid,
+    {
+      ...valid,
+      rollNo: "26261A321234",
+      email: "long.namecsb26321234@mgit.ac.in",
+    },
+    { ...valid, rollNo: " 25261a3201 ", email: " JUNIORCSB253201@MGIT.AC.IN " },
+  ])("accepts allowed batches and variable numeric suffixes", value => {
+    expect(identitySchema.safeParse(value).success).toBe(true);
   });
-
-  it("accepts an uploaded photo filename before reaching the database", async () => {
-    const caller = appRouter.createCaller(createPublicContext());
-
+  it.each([
+    { ...valid, email: "junior@gmail.com" },
+    { ...valid, email: "juniorcsb243201@mgit.ac.in" },
+    { ...valid, email: "juniorcsb253201@mgit.ac.in.evil.com" },
+    { ...valid, email: "juniorcsb2532@mgit.ac.in" },
+    { ...valid, rollNo: "25261A3301" },
+    { ...valid, rollNo: "25261A32" },
+    { ...valid, rollNo: "25261A3201EXTRA" },
+    { ...valid, rollNo: "26261A3201" },
+  ])("rejects invalid identities at the API boundary", async value => {
+    await expect(caller.registrations.create(value)).rejects.toMatchObject({
+      code: "BAD_REQUEST",
+    });
+    expect(createRegistration).not.toHaveBeenCalled();
+  });
+  it("saves a normalized identity without uploading a photo", async () => {
+    vi.mocked(createRegistration).mockResolvedValue({ id: 42 });
     await expect(
       caller.registrations.create({
-        name: "A Junior",
-        rollNo: "CSB26-002",
-        email: "junior@example.com",
-        photoUrl: "freshers-photo.jpg",
-      }),
-    ).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available" });
+        ...valid,
+        name: " A Junior ",
+        rollNo: "25261a3201",
+      })
+    ).resolves.toEqual({ id: 42 });
+    expect(createRegistration).toHaveBeenCalledWith({ ...valid, photoUrl: "" });
+  });
+  it("returns an actionable duplicate registration error", async () => {
+    vi.mocked(createRegistration).mockRejectedValue({
+      cause: { code: "ER_DUP_ENTRY" },
+    });
+    await expect(caller.registrations.create(valid)).rejects.toMatchObject({
+      code: "CONFLICT",
+    });
+  });
+  it("never issues a successful registration when persistence fails", async () => {
+    vi.mocked(createRegistration).mockRejectedValue(
+      new Error("Database is not available")
+    );
+    await expect(caller.registrations.create(valid)).rejects.toMatchObject({
+      code: "INTERNAL_SERVER_ERROR",
+      message: expect.stringContaining("guest list is unavailable"),
+    });
   });
 });
