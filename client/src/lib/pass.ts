@@ -99,10 +99,25 @@ export async function createPassPdf(guest: Guest, photo: string, id: number) {
 }
 
 export function downloadPassPdf(blob: Blob, rollNo: string) {
+  const filename = `${EVENT.title}-pass-${rollNo}.pdf`;
+  const file = new File([blob], filename, { type: "application/pdf" });
+  if (
+    typeof navigator.share === "function" &&
+    typeof navigator.canShare === "function" &&
+    navigator.canShare({ files: [file] })
+  ) {
+    void navigator.share({
+      files: [file],
+      title: `${EVENT.title} pass`,
+    }).catch(() => {
+      // Closing the native share sheet is not a download failure.
+    });
+    return;
+  }
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${EVENT.title}-pass-${rollNo}.pdf`;
+  link.download = filename;
   link.rel = "noopener";
   link.style.display = "none";
   document.body.appendChild(link);
