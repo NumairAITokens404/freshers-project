@@ -175,10 +175,6 @@ export default function MemoryTimeline() {
                     aria-hidden="true"
                   >
                     <path d="M 0 0 C 45 0 12 70 56 70 C 100 70 99 14 64 22 C 30 30 45 110 110 120" />
-                    <path
-                      className="memory-branch__twig"
-                      d="M 54 91 C 9 126 14 162 39 155 C 65 147 29 134 31 144"
-                    />
                   </svg>
                 )}
               </li>
