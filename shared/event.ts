@@ -2,10 +2,10 @@ export const EVENT = {
   title: "JASHN",
   date: "16 October",
   venue: "E-302",
-  time: "10:00 AM – 4:00 PM",
+  time: "9:30 AM – 4:00 PM",
   schedule: [
     {
-      time: "10:00 AM",
+      time: "09:30 AM",
       title: "Bienvenidos",
       translation: "Spanish / Welcome",
       label: "The welcome",
@@ -25,7 +25,7 @@ export const EVENT = {
       color: "#bba0ff",
     },
     {
-      time: "11:45 AM",
+      time: "12:30 PM",
       title: "Tutti in Pista",
       translation: "Italian / Everyone on the dance floor",
       label: "The DJ takeover",
@@ -35,7 +35,7 @@ export const EVENT = {
       color: "#d9ff43",
     },
     {
-      time: "01:15 PM",
+      time: "01:00 PM",
       title: "Buon Appetito",
       translation: "Italian / Enjoy your meal",
       label: "The lunch break",
