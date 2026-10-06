@@ -40,30 +40,12 @@ export async function createPassPdf(guest: Guest, photo: string, id: number) {
   ctx.fillText("CSB FRESHERS ’26  /  ALL ACCESS", 64, 150);
 
   const frame = { x: 64, y: 210, width: 952, height: 650 };
-  ctx.save();
-  ctx.shadowBlur = 38;
-  ctx.shadowColor = "#ff7ddb";
-  ctx.strokeStyle = "#ff7ddb";
-  ctx.lineWidth = 14;
-  ctx.strokeRect(frame.x, frame.y, frame.width, frame.height);
-  ctx.shadowColor = "#e6ff70";
-  ctx.strokeStyle = "#e6ff70";
-  ctx.lineWidth = 5;
-  ctx.strokeRect(
-    frame.x + 18,
-    frame.y + 18,
-    frame.width - 36,
-    frame.height - 36
+  ctx.fillStyle = "rgba(8,3,18,.42)";
+  ctx.fillRect(frame.x, frame.y, frame.width, frame.height);
+  const scale = Math.min(
+    frame.width / portrait.width,
+    frame.height / portrait.height
   );
-  ctx.restore();
-  const scale = Math.max(
-    (frame.width - 44) / portrait.width,
-    (frame.height - 44) / portrait.height
-  );
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(frame.x + 22, frame.y + 22, frame.width - 44, frame.height - 44);
-  ctx.clip();
   ctx.drawImage(
     portrait,
     frame.x + (frame.width - portrait.width * scale) / 2,
@@ -71,7 +53,6 @@ export async function createPassPdf(guest: Guest, photo: string, id: number) {
     portrait.width * scale,
     portrait.height * scale
   );
-  ctx.restore();
 
   ctx.fillStyle = "#e6ff70";
   ctx.font = "bold 23px monospace";

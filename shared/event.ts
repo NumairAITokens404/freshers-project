@@ -2,7 +2,7 @@ export const EVENT = {
   title: "JASHN",
   date: "16 October",
   venue: "E-302",
-  time: "9:30 AM – 4:00 PM",
+  time: "9:30 AM – 12:30 PM",
   schedule: [
     {
       time: "09:30 AM",

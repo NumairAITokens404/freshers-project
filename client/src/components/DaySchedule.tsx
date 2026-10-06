@@ -11,7 +11,7 @@ export default function DaySchedule() {
     >
       <p className="section-kicker">THE DAY, AT A GLANCE</p>
       <h2>
-        SIX HOURS. <em>ALL OURS.</em>
+        THREE HOURS. <em>ALL OURS.</em>
       </h2>
       <ol>
         {EVENT.schedule.map(act => (
@@ -25,7 +25,7 @@ export default function DaySchedule() {
         ))}
       </ol>
       <p className="day-schedule__note">
-        Until 4:00 PM · Timings are provisional.
+        Freshers: 9:30 AM–12:30 PM · Lunch and Carpe Diem are post-event.
       </p>
     </GlowCard>
   );

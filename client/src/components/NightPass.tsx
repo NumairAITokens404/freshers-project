@@ -37,8 +37,8 @@ export default function NightPass() {
     setPhotoBusy(true);
     setError("");
     try {
-      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type))
-        throw new Error("Pick a JPG, PNG, or WebP photo.");
+      if (!file.type.startsWith("image/"))
+        throw new Error("Pick an image file for your pass photo.");
       if (file.size > 8 * 1024 * 1024)
         throw new Error("Keep your photo under 8 MB.");
       const url = URL.createObjectURL(file);
@@ -341,7 +341,7 @@ export default function NightPass() {
                     className="np-photo-input"
                     id={`${id}-photo`}
                     type="file"
-                    accept="image/jpeg,image/png,image/webp"
+                    accept="image/*"
                     aria-label="Choose your pass photo"
                     onChange={event => {
                       const file = event.target.files?.[0];
