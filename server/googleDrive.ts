@@ -74,6 +74,7 @@ export async function uploadToDrive(input: {
   mimeType: string;
   data: Buffer;
 }) {
+  if (!input.folderId) throw new Error("Google Drive folder is not configured");
   const token = await accessToken();
   const boundary = `jashn_${crypto.randomUUID().replace(/-/g, "")}`;
   const metadata = JSON.stringify({
@@ -95,12 +96,18 @@ export async function uploadToDrive(input: {
       body: Buffer.concat([before, input.data, after]),
     }
   );
-  const body = (await response.json()) as {
+  const raw = await response.text();
+  let body: {
     id?: string;
     name?: string;
     webViewLink?: string;
     error?: { message?: string };
-  };
+  } = {};
+  try {
+    body = raw ? (JSON.parse(raw) as typeof body) : {};
+  } catch {
+    throw new Error(`Google Drive returned an invalid response (${response.status})`);
+  }
   if (!response.ok || !body.id)
     throw new Error(body.error?.message || "Google Drive upload failed");
   return body;
