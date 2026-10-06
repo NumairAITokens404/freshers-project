@@ -5,6 +5,10 @@
   "framework": null,
   "rewrites": [
     {
+      "source": "/api/google/:path*",
+      "destination": "/api/google/:path*"
+    },
+    {
       "source": "/api/trpc/:path*",
       "destination": "/api/trpc/:path*"
     },

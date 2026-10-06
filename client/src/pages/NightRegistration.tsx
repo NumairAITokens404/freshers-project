@@ -42,7 +42,7 @@ export default function NightRegistration() {
               ],
               [
                 "What happens to my photo?",
-                "Your photo is processed on your device for the downloadable pass. It is not uploaded to Google Drive or saved to our server. Download your pass before leaving the page.",
+                "Your photo is used to create your downloadable pass and is stored privately with the JASHN organisers for event and return-gift planning.",
               ],
             ].map(([question, answer]) => (
               <details key={question}>

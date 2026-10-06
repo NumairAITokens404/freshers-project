@@ -3,7 +3,7 @@ import { Check, Download, Loader2, Upload } from "lucide-react";
 import PartyPopper from "@/components/PartyPopper";
 import { GlowCard } from "@/components/ui/spotlight-card";
 import { trpc } from "@/lib/trpc";
-import { downloadPass } from "@/lib/pass";
+import { blobToDataUrl, createPassPdf, downloadPassPdf } from "@/lib/pass";
 import { EVENT } from "@shared/event";
 import { identitySchema, type Guest } from "@shared/registration";
 
@@ -22,6 +22,7 @@ export default function NightPass() {
   const [pass, setPass] = useState<IssuedPass | null>(null);
   const [exporting, setExporting] = useState(false);
   const register = trpc.registrations.create.useMutation();
+  const uploadPass = trpc.registrations.uploadPass.useMutation();
 
   useEffect(() => {
     mounted.current = true;
@@ -88,8 +89,7 @@ export default function NightPass() {
     submitting.current = true;
     const passPhoto = photo;
     try {
-      // Only identity details leave this device; the photo is used locally.
-      const result = await register.mutateAsync(parsed.data);
+      const result = await register.mutateAsync({ ...parsed.data, photo });
       if (mounted.current)
         setPass({ guest: parsed.data, photo: passPhoto, id: result.id });
     } catch (cause) {
@@ -109,7 +109,14 @@ export default function NightPass() {
     setExporting(true);
     setError("");
     try {
-      await downloadPass(pass.guest, pass.photo, pass.id);
+      const pdf = await createPassPdf(pass.guest, pass.photo, pass.id);
+      downloadPassPdf(pdf, pass.guest.rollNo);
+      await uploadPass.mutateAsync({
+        id: pass.id,
+        name: pass.guest.name,
+        rollNo: pass.guest.rollNo,
+        pdf: await blobToDataUrl(pdf),
+      });
     } catch (cause) {
       if (mounted.current)
         setError(
@@ -193,8 +200,8 @@ export default function NightPass() {
             </div>
           </GlowCard>
           <p className="np-save-note">
-            Download your pass before leaving. Your photo stays on this device
-            and isn’t saved on our server.
+            Download your pass before leaving. Your photo and pass are backed up
+            privately for the JASHN organisers.
           </p>
           <button
             className="np-submit"
@@ -357,7 +364,7 @@ export default function NightPass() {
           </fieldset>
           <p className="np-privacy">
             Your name, roll number and email go to the event guest list. Your
-            photo stays on this device and is only used to make your pass.
+            photo is stored privately for your pass and return-gift planning.
           </p>
         </form>
       )}

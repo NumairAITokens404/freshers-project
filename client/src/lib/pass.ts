@@ -1,83 +1,137 @@
+import { jsPDF } from "jspdf";
 import { EVENT } from "@shared/event";
 import type { Guest } from "@shared/registration";
 
-export async function downloadPass(guest: Guest, photo: string, id: number) {
+async function loadImage(src: string) {
+  const image = new Image();
+  image.src = src;
+  await image.decode();
+  return image;
+}
+
+export async function createPassPdf(guest: Guest, photo: string, id: number) {
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
   canvas.height = 1500;
   const ctx = canvas.getContext("2d");
-  if (!ctx)
-    throw new Error(
-      "Your browser couldn't create the pass. Please try another browser."
-    );
-  const img = new Image();
-  img.src = photo;
-  await img.decode();
-  ctx.fillStyle = "#101014";
-  ctx.fillRect(0, 0, 1080, 1500);
-  ctx.fillStyle = "#d9ff43";
-  ctx.fillRect(0, 0, 1080, 140);
-  ctx.fillStyle = "#101014";
-  ctx.font = "italic 58px Georgia, serif";
-  ctx.fillText(EVENT.title, 64, 91);
-  ctx.font = "bold 20px monospace";
-  ctx.fillText("CSB FRESHERS ’26", 770, 84);
-  ctx.fillStyle = "#faf9f4";
-  ctx.font = "bold 104px sans-serif";
-  ctx.fillText("ALL ACCESS.", 64, 278);
-  const scale = Math.max(952 / img.width, 540 / img.height);
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(64, 330, 952, 540);
-  ctx.clip();
+  if (!ctx) throw new Error("Your browser couldn't create the pass.");
+  const [background, portrait] = await Promise.all([
+    loadImage("/images/freshers/disco-streaks.png"),
+    loadImage(photo),
+  ]);
+  const bgScale = Math.max(
+    canvas.width / background.width,
+    canvas.height / background.height
+  );
   ctx.drawImage(
-    img,
-    64 + (952 - img.width * scale) / 2,
-    330 + (540 - img.height * scale) / 2,
-    img.width * scale,
-    img.height * scale
+    background,
+    (canvas.width - background.width * bgScale) / 2,
+    (canvas.height - background.height * bgScale) / 2,
+    background.width * bgScale,
+    background.height * bgScale
+  );
+  ctx.fillStyle = "rgba(8,3,18,.73)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#ff7ddb";
+  ctx.font = "italic 76px Georgia, serif";
+  ctx.fillText(EVENT.title, 64, 105);
+  ctx.fillStyle = "#e6ff70";
+  ctx.font = "bold 22px monospace";
+  ctx.fillText("CSB FRESHERS ’26  /  ALL ACCESS", 64, 150);
+
+  const frame = { x: 64, y: 210, width: 952, height: 650 };
+  ctx.save();
+  ctx.shadowBlur = 38;
+  ctx.shadowColor = "#ff7ddb";
+  ctx.strokeStyle = "#ff7ddb";
+  ctx.lineWidth = 14;
+  ctx.strokeRect(frame.x, frame.y, frame.width, frame.height);
+  ctx.shadowColor = "#e6ff70";
+  ctx.strokeStyle = "#e6ff70";
+  ctx.lineWidth = 5;
+  ctx.strokeRect(
+    frame.x + 18,
+    frame.y + 18,
+    frame.width - 36,
+    frame.height - 36
   );
   ctx.restore();
-  ctx.fillStyle = "#d9ff43";
-  ctx.font = "bold 24px sans-serif";
-  ctx.fillText("THE GUEST", 64, 934);
-  let size = 64;
-  do {
-    ctx.font = `bold ${size--}px sans-serif`;
-  } while (ctx.measureText(guest.name).width > 952 && size > 12);
-  ctx.fillStyle = "#faf9f4";
-  ctx.fillText(guest.name, 64, 1010);
-  ctx.font = "28px monospace";
-  ctx.fillText(guest.rollNo, 64, 1060);
-  ctx.font = "22px sans-serif";
-  ctx.fillStyle = "#a9a9b2";
-  ctx.fillText(guest.email, 64, 1102, 952);
-  ctx.strokeStyle = "#54545d";
-  ctx.setLineDash([10, 9]);
+  const scale = Math.max(
+    (frame.width - 44) / portrait.width,
+    (frame.height - 44) / portrait.height
+  );
+  ctx.save();
   ctx.beginPath();
-  ctx.moveTo(64, 1150);
-  ctx.lineTo(1016, 1150);
+  ctx.rect(frame.x + 22, frame.y + 22, frame.width - 44, frame.height - 44);
+  ctx.clip();
+  ctx.drawImage(
+    portrait,
+    frame.x + (frame.width - portrait.width * scale) / 2,
+    frame.y + (frame.height - portrait.height * scale) / 2,
+    portrait.width * scale,
+    portrait.height * scale
+  );
+  ctx.restore();
+
+  ctx.fillStyle = "#e6ff70";
+  ctx.font = "bold 23px monospace";
+  ctx.fillText("THE GUEST", 64, 930);
+  let size = 70;
+  do ctx.font = `bold ${size--}px sans-serif`;
+  while (ctx.measureText(guest.name).width > 952 && size > 24);
+  ctx.fillStyle = "#fff9f3";
+  ctx.fillText(guest.name.toUpperCase(), 64, 1010);
+  ctx.fillStyle = "#ff7ddb";
+  ctx.font = "bold 30px monospace";
+  ctx.fillText(guest.rollNo, 64, 1065);
+  ctx.fillStyle = "#eadbea";
+  ctx.font = "24px sans-serif";
+  ctx.fillText(guest.email, 64, 1110, 952);
+  ctx.strokeStyle = "#ff7ddb";
+  ctx.lineWidth = 3;
+  ctx.setLineDash([13, 11]);
+  ctx.beginPath();
+  ctx.moveTo(64, 1160);
+  ctx.lineTo(1016, 1160);
   ctx.stroke();
-  ctx.fillStyle = "#faf9f4";
-  ctx.font = "bold 38px sans-serif";
-  ctx.fillText(`${EVENT.date.toUpperCase()} / ${EVENT.venue}`, 64, 1230);
-  ctx.font = "28px sans-serif";
-  ctx.fillText(EVENT.time, 64, 1280);
-  ctx.fillStyle = "#fc73d3";
-  ctx.font = "bold 24px monospace";
-  ctx.fillText(
-    `GUEST #${String(id).padStart(5, "0")} • CSB FRESHERS`,
-    64,
-    1400
-  );
-  const blob = await new Promise<Blob | null>(resolve =>
-    canvas.toBlob(resolve, "image/png")
-  );
-  if (!blob) throw new Error("Couldn't export your pass. Please try again.");
+  ctx.setLineDash([]);
+  ctx.fillStyle = "#fff9f3";
+  ctx.font = "bold 42px sans-serif";
+  ctx.fillText(`${EVENT.date.toUpperCase()}  /  ${EVENT.venue}`, 64, 1240);
+  ctx.fillStyle = "#e6ff70";
+  ctx.font = "30px monospace";
+  ctx.fillText(EVENT.time, 64, 1295);
+  ctx.fillStyle = "#ff7ddb";
+  ctx.font = "bold 25px monospace";
+  ctx.fillText(`GUEST #${String(id).padStart(5, "0")}`, 64, 1410);
+  ctx.fillStyle = "#fff9f3";
+  ctx.fillText("NEW FACES. SAME FREQUENCY.", 565, 1410);
+
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "px",
+    format: [1080, 1500],
+    hotfixes: ["px_scaling"],
+  });
+  pdf.addImage(canvas.toDataURL("image/jpeg", 0.9), "JPEG", 0, 0, 1080, 1500);
+  return pdf.output("blob");
+}
+
+export function downloadPassPdf(blob: Blob, rollNo: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${EVENT.title}-pass-${guest.rollNo}.png`;
+  link.download = `${EVENT.title}-pass-${rollNo}.pdf`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+export async function blobToDataUrl(blob: Blob) {
+  return await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () =>
+      reject(new Error("Couldn't prepare the PDF backup."));
+    reader.readAsDataURL(blob);
+  });
 }

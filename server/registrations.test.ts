@@ -1,9 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 import { createRegistration } from "./db";
+import { uploadToDrive } from "./googleDrive";
 import { identitySchema } from "../shared/registration";
 import type { TrpcContext } from "./_core/context";
-vi.mock("./db", () => ({ createRegistration: vi.fn() }));
+vi.mock("./db", () => ({
+  createRegistration: vi.fn(),
+  getRegistrationById: vi.fn(),
+}));
+vi.mock("./googleDrive", async importOriginal => {
+  const original = await importOriginal<typeof import("./googleDrive")>();
+  return { ...original, uploadToDrive: vi.fn() };
+});
+const photo = "data:image/jpeg;base64,YQ==";
 const valid = {
   name: "A Junior",
   rollNo: "25261A3201",
@@ -16,6 +25,12 @@ const caller = appRouter.createCaller({
 } as TrpcContext);
 beforeEach(() => {
   vi.mocked(createRegistration).mockReset();
+  vi.mocked(uploadToDrive).mockReset();
+  vi.mocked(uploadToDrive).mockResolvedValue({
+    id: "photo-1",
+    name: "photo.jpg",
+    webViewLink: "https://drive.google.com/photo-1",
+  });
 });
 describe("CSB entry validation", () => {
   it.each([
@@ -44,22 +59,28 @@ describe("CSB entry validation", () => {
     });
     expect(createRegistration).not.toHaveBeenCalled();
   });
-  it("saves a normalized identity without uploading a photo", async () => {
+  it("saves a normalized identity and its Drive photo", async () => {
     vi.mocked(createRegistration).mockResolvedValue({ id: 42 });
     await expect(
       caller.registrations.create({
         ...valid,
         name: " A Junior ",
         rollNo: "25261a3201",
+        photo,
       })
-    ).resolves.toEqual({ id: 42 });
-    expect(createRegistration).toHaveBeenCalledWith({ ...valid, photoUrl: "" });
+    ).resolves.toEqual({ id: 42, photoFileId: "photo-1" });
+    expect(createRegistration).toHaveBeenCalledWith({
+      ...valid,
+      photoUrl: "https://drive.google.com/photo-1",
+    });
   });
   it("returns an actionable duplicate registration error", async () => {
     vi.mocked(createRegistration).mockRejectedValue({
       cause: { code: "ER_DUP_ENTRY" },
     });
-    await expect(caller.registrations.create(valid)).rejects.toMatchObject({
+    await expect(
+      caller.registrations.create({ ...valid, photo })
+    ).rejects.toMatchObject({
       code: "CONFLICT",
     });
   });
@@ -67,7 +88,9 @@ describe("CSB entry validation", () => {
     vi.mocked(createRegistration).mockRejectedValue(
       new Error("Database is not available")
     );
-    await expect(caller.registrations.create(valid)).rejects.toMatchObject({
+    await expect(
+      caller.registrations.create({ ...valid, photo })
+    ).rejects.toMatchObject({
       code: "INTERNAL_SERVER_ERROR",
       message: expect.stringContaining("guest list is unavailable"),
     });
