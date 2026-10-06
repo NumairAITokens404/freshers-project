@@ -1,7 +1,7 @@
 export const EVENT = {
-  title: "CSB Disco Club",
+  title: "JASHN",
   date: "16 October",
-  venue: "E-701",
+  venue: "E-302",
   time: "10:00 AM – 4:00 PM",
   schedule: [
     {

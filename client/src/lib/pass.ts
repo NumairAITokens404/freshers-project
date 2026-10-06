@@ -18,8 +18,10 @@ export async function downloadPass(guest: Guest, photo: string, id: number) {
   ctx.fillStyle = "#d9ff43";
   ctx.fillRect(0, 0, 1080, 140);
   ctx.fillStyle = "#101014";
-  ctx.font = "bold 38px sans-serif";
-  ctx.fillText("CSB / DISCO CLUB", 64, 88);
+  ctx.font = "italic 58px Georgia, serif";
+  ctx.fillText(EVENT.title, 64, 91);
+  ctx.font = "bold 20px monospace";
+  ctx.fillText("CSB FRESHERS ’26", 770, 84);
   ctx.fillStyle = "#faf9f4";
   ctx.font = "bold 104px sans-serif";
   ctx.fillText("ALL ACCESS.", 64, 278);
@@ -75,7 +77,7 @@ export async function downloadPass(guest: Guest, photo: string, id: number) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `CSB-pass-${guest.rollNo}.png`;
+  link.download = `${EVENT.title}-pass-${guest.rollNo}.png`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }

@@ -1,15 +1,17 @@
-import { ArrowLeft, Disc3 } from "lucide-react";
 import NightPass from "@/components/NightPass";
 import { EVENT } from "@shared/event";
+import RegistrationDecor from "@/components/RegistrationDecor";
+import { GlowCard } from "@/components/ui/spotlight-card";
 
 export default function NightRegistration() {
   return (
     <div className="night-registration-page">
+      <RegistrationDecor />
       <header className="night-registration-nav">
         <a href="/" className="night-back">
-          <ArrowLeft size={17} /> BACK TO THE DISCO
+          BACK TO {EVENT.title}
         </a>
-        <Disc3 size={28} />
+        <span className="jashn-wordmark">{EVENT.title}</span>
       </header>
       <main className="night-registration-grid">
         <div className="night-pass-event" aria-label="Event details">
@@ -19,7 +21,11 @@ export default function NightRegistration() {
         </div>
         <div className="night-pass-form">
           <NightPass />
-          <section className="night-pass-faq">
+          <GlowCard
+            className="night-pass-faq"
+            role="region"
+            aria-label="Registration questions"
+          >
             <h2>A FEW THINGS BEFORE THE FLOOR.</h2>
             {[
               [
@@ -32,7 +38,7 @@ export default function NightRegistration() {
               ],
               [
                 "Is the schedule final?",
-                "16 October, 10:00 AM–4:00 PM in E-701 is the plan. Individual activities and time slots are provisional until the organisers release the final schedule.",
+                `${EVENT.date}, ${EVENT.time} in ${EVENT.venue} is the plan. Individual activities and time slots are provisional until the organisers release the final schedule.`,
               ],
               [
                 "What happens to my photo?",
@@ -47,7 +53,7 @@ export default function NightRegistration() {
                 <p>{answer}</p>
               </details>
             ))}
-          </section>
+          </GlowCard>
         </div>
       </main>
     </div>

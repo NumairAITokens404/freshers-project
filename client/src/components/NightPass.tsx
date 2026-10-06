@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import { ArrowUpRight, Check, Download, Loader2, Upload } from "lucide-react";
+import { Check, Download, Loader2, Upload } from "lucide-react";
+import PartyPopper from "@/components/PartyPopper";
+import { GlowCard } from "@/components/ui/spotlight-card";
 import { trpc } from "@/lib/trpc";
 import { downloadPass } from "@/lib/pass";
 import { EVENT } from "@shared/event";
@@ -131,7 +133,8 @@ export default function NightPass() {
   }
 
   return (
-    <div className="np-shell">
+    <GlowCard className="np-shell">
+      {pass && <PartyPopper key={pass.id} />}
       <header className="np-heading">
         <span className="np-kicker">YOUR ALL-ACCESS PASS</span>
         <h1 className="np-title">
@@ -161,9 +164,14 @@ export default function NightPass() {
           <div className="np-confirmed">
             <Check size={15} /> YOU’RE ON THE LIST
           </div>
-          <article className="np-ticket" aria-label="Your confirmed event pass">
+          <GlowCard
+            className="np-ticket"
+            glowColor="green"
+            role="region"
+            aria-label="Your confirmed event pass"
+          >
             <div className="np-ticket-top">
-              <span>CSB DISCO CLUB</span>
+              <span className="jashn-ticket-wordmark">{EVENT.title}</span>
               <span>#{String(pass.id).padStart(5, "0")}</span>
             </div>
             <img
@@ -183,7 +191,7 @@ export default function NightPass() {
               </strong>
               <span>{EVENT.time}</span>
             </div>
-          </article>
+          </GlowCard>
           <p className="np-save-note">
             Download your pass before leaving. Your photo stays on this device
             and isn’t saved on our server.
@@ -207,7 +215,7 @@ export default function NightPass() {
             onClick={reset}
             disabled={exporting}
           >
-            Register another student <ArrowUpRight size={14} />
+            Register another student
           </button>
         </div>
       ) : (
@@ -291,43 +299,45 @@ export default function NightPass() {
             </div>
             <div className="np-field">
               <span className="np-label">YOUR PASS PHOTO</span>
-              <label className="np-photo-picker" htmlFor={`${id}-photo`}>
-                {photo ? (
-                  <img
-                    className="np-photo-preview"
-                    src={photo}
-                    alt="Selected pass photo"
-                  />
-                ) : (
-                  <Upload size={22} aria-hidden="true" />
-                )}
-                <span className="np-photo-copy">
-                  <strong>
-                    {photoBusy
-                      ? "Getting your photo ready…"
-                      : photo
-                        ? "Photo ready. Looking good."
-                        : "Add your photo"}
-                  </strong>
-                  <span>
-                    {photo
-                      ? "Choose a different photo"
-                      : "JPG, PNG or WebP · max 8 MB"}
+              <GlowCard className="np-photo-glow">
+                <label className="np-photo-picker" htmlFor={`${id}-photo`}>
+                  {photo ? (
+                    <img
+                      className="np-photo-preview"
+                      src={photo}
+                      alt="Selected pass photo"
+                    />
+                  ) : (
+                    <Upload size={22} aria-hidden="true" />
+                  )}
+                  <span className="np-photo-copy">
+                    <strong>
+                      {photoBusy
+                        ? "Getting your photo ready…"
+                        : photo
+                          ? "Photo ready. Looking good."
+                          : "Add your photo"}
+                    </strong>
+                    <span>
+                      {photo
+                        ? "Choose a different photo"
+                        : "JPG, PNG or WebP · max 8 MB"}
+                    </span>
                   </span>
-                </span>
-                <input
-                  className="np-photo-input"
-                  id={`${id}-photo`}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  aria-label="Choose your pass photo"
-                  onChange={event => {
-                    const file = event.target.files?.[0];
-                    event.target.value = "";
-                    void choosePhoto(file);
-                  }}
-                />
-              </label>
+                  <input
+                    className="np-photo-input"
+                    id={`${id}-photo`}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    aria-label="Choose your pass photo"
+                    onChange={event => {
+                      const file = event.target.files?.[0];
+                      event.target.value = "";
+                      void choosePhoto(file);
+                    }}
+                  />
+                </label>
+              </GlowCard>
               <span className="np-photo-status" role="status">
                 {photoBusy ? "Processing photo on this device." : ""}
               </span>
@@ -337,11 +347,11 @@ export default function NightPass() {
               type="submit"
               disabled={register.isPending || photoBusy}
             >
-              {register.isPending ? "SAVING YOUR SPOT…" : "GET MY PASS"}
-              {register.isPending ? (
+              {register.isPending
+                ? "SAVING YOUR SPOT…"
+                : "REGISTER & GET MY PASS"}
+              {register.isPending && (
                 <Loader2 className="np-loading" size={18} />
-              ) : (
-                <ArrowUpRight size={19} />
               )}
             </button>
           </fieldset>
@@ -356,6 +366,6 @@ export default function NightPass() {
           {error}
         </p>
       )}
-    </div>
+    </GlowCard>
   );
 }
