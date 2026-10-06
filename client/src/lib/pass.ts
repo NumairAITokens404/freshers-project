@@ -103,8 +103,14 @@ export function downloadPassPdf(blob: Blob, rollNo: string) {
   const link = document.createElement("a");
   link.href = url;
   link.download = `${EVENT.title}-pass-${rollNo}.pdf`;
+  link.rel = "noopener";
+  link.style.display = "none";
+  document.body.appendChild(link);
   link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  window.setTimeout(() => {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, 60000);
 }
 
 export async function blobToDataUrl(blob: Blob) {

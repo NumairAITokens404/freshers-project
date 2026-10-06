@@ -19,6 +19,7 @@ export default function NightPass() {
   const [photoBusy, setPhotoBusy] = useState(false);
   const [error, setError] = useState("");
   const [pass, setPass] = useState<IssuedPass | null>(null);
+  const [passPdf, setPassPdf] = useState<Blob | null>(null);
   const [exporting, setExporting] = useState(false);
   const [registering, setRegistering] = useState(false);
 
@@ -29,6 +30,30 @@ export default function NightPass() {
       photoVersion.current += 1;
     };
   }, []);
+
+  useEffect(() => {
+    if (!pass) {
+      setPassPdf(null);
+      return;
+    }
+    let cancelled = false;
+    setPassPdf(null);
+    void createPassPdf(pass.guest, pass.photo, pass.id)
+      .then(pdf => {
+        if (!cancelled) setPassPdf(pdf);
+      })
+      .catch(cause => {
+        if (!cancelled)
+          setError(
+            cause instanceof Error
+              ? cause.message
+              : "Couldn't prepare your pass. Please try again."
+          );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [pass]);
 
   async function choosePhoto(file?: File) {
     if (!file) return;
@@ -111,16 +136,15 @@ export default function NightPass() {
   }
 
   async function savePass() {
-    if (!pass || exporting) return;
+    if (!pass || !passPdf || exporting) return;
+    downloadPassPdf(passPdf, pass.guest.rollNo);
     setExporting(true);
     setError("");
     try {
-      const pdf = await createPassPdf(pass.guest, pass.photo, pass.id);
-      downloadPassPdf(pdf, pass.guest.rollNo);
       const response = await fetch("/api/pass", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: pass.guest.name, rollNo: pass.guest.rollNo, pdf: await blobToDataUrl(pdf) }),
+        body: JSON.stringify({ name: pass.guest.name, rollNo: pass.guest.rollNo, pdf: await blobToDataUrl(passPdf) }),
       });
       const result = await response.json() as { error?: string };
       if (!response.ok) throw new Error(result.error || "Pass backup failed");
@@ -139,6 +163,7 @@ export default function NightPass() {
   function reset() {
     photoVersion.current += 1;
     setPass(null);
+    setPassPdf(null);
     setGuest(emptyGuest);
     setPhoto("");
     setPhotoBusy(false);
@@ -213,10 +238,14 @@ export default function NightPass() {
             className="np-submit"
             type="button"
             onClick={() => void savePass()}
-            disabled={exporting}
+            disabled={!passPdf || exporting}
           >
-            {exporting ? "CREATING YOUR PASS…" : "DOWNLOAD MY PASS"}
-            {exporting ? (
+            {!passPdf
+              ? "PREPARING YOUR PASS…"
+              : exporting
+                ? "SAVING YOUR PASS…"
+                : "DOWNLOAD MY PASS"}
+            {!passPdf || exporting ? (
               <Loader2 className="np-loading" size={18} />
             ) : (
               <Download size={18} />
