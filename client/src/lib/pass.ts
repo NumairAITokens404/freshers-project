@@ -106,10 +106,7 @@ export function downloadPassPdf(blob: Blob, rollNo: string) {
     typeof navigator.canShare === "function" &&
     navigator.canShare({ files: [file] })
   ) {
-    void navigator.share({
-      files: [file],
-      title: `${EVENT.title} pass`,
-    }).catch(() => {
+    void navigator.share({ files: [file] }).catch(() => {
       // Closing the native share sheet is not a download failure.
     });
     return;
