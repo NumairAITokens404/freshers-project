@@ -157,16 +157,18 @@ html {
 .static-nav__aside a,
 .sound-toggle {
   color: var(--static-pink);
-  border-bottom: 1px solid currentColor;
-  padding: 11px 0;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  padding: 10px 13px;
+  white-space: nowrap;
   transition:
     color 0.2s ease,
-    text-shadow 0.2s ease;
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .sound-toggle {
   appearance: none;
-  border: 0;
-  padding: 11px 0;
   background: transparent;
   font: 600 9px/1 monospace;
   letter-spacing: 1px;
@@ -175,8 +177,10 @@ html {
 .static-nav__aside a:hover,
 .sound-toggle:hover,
 .sound-toggle[aria-pressed="true"] {
-  color: var(--static-acid);
-  text-shadow: 0 0 18px rgba(230, 255, 112, 0.5);
+  color: #130c1b;
+  background: var(--static-acid);
+  border-color: var(--static-acid);
+  box-shadow: 0 0 22px rgba(230, 255, 112, 0.3);
 }
 .static-hero {
   position: relative;
@@ -440,7 +444,7 @@ html {
     display: none;
   }
   .static-nav__aside {
-    gap: 0;
+    gap: 7px;
   }
   .static-hero {
     width: 88%;
@@ -530,8 +534,10 @@ html {
   }
 }
 @media (max-width: 460px) {
-  .static-nav__aside a {
+  .static-nav__aside a,
+  .sound-toggle {
     font-size: 8px;
+    padding: 8px 9px;
   }
 }
 @media (min-width: 801px) {

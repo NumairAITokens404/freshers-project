@@ -59,7 +59,7 @@ export default function Home() {
             onClick={toggleSound}
             aria-pressed={isPlaying}
           >
-            {isPlaying ? "PAUSE SOUND" : "PLAY SOUND"}
+            {isPlaying ? "PAUSE SONG" : "PLAY SONG"}
           </button>
         </div>
       </header>
