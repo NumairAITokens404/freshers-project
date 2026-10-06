@@ -191,13 +191,13 @@
   padding-top: calc(15px + var(--memory-stagger, 120px));
 }
 .memory-card {
-  height: var(--memory-height, 360px);
+  height: var(--memory-height, 420px);
   background: #171020;
   border: 1px solid #ccb0df50;
   box-shadow: 0 12px 30px #0005;
 }
 .memory-card__image {
-  height: calc(var(--memory-height, 360px) - 132px);
+  height: calc(var(--memory-height, 420px) - 132px);
   position: relative;
   overflow: hidden;
   display: grid;
