@@ -2,7 +2,6 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Check, Download, Loader2, Upload } from "lucide-react";
 import PartyPopper from "@/components/PartyPopper";
 import { GlowCard } from "@/components/ui/spotlight-card";
-import { trpc } from "@/lib/trpc";
 import { blobToDataUrl, createPassPdf, downloadPassPdf } from "@/lib/pass";
 import { EVENT } from "@shared/event";
 import { identitySchema, type Guest } from "@shared/registration";
@@ -21,8 +20,7 @@ export default function NightPass() {
   const [error, setError] = useState("");
   const [pass, setPass] = useState<IssuedPass | null>(null);
   const [exporting, setExporting] = useState(false);
-  const register = trpc.registrations.create.useMutation();
-  const uploadPass = trpc.registrations.uploadPass.useMutation();
+  const [registering, setRegistering] = useState(false);
 
   useEffect(() => {
     mounted.current = true;
@@ -49,14 +47,14 @@ export default function NightPass() {
         image.src = url;
         await image.decode();
         const canvas = document.createElement("canvas");
-        const scale = Math.min(1, 1000 / Math.max(image.width, image.height));
+        const scale = Math.min(1, 640 / Math.max(image.width, image.height));
         canvas.width = Math.max(1, Math.round(image.width * scale));
         canvas.height = Math.max(1, Math.round(image.height * scale));
         const context = canvas.getContext("2d");
         if (!context) throw new Error("Couldn't read this photo. Try another.");
         context.drawImage(image, 0, 0, canvas.width, canvas.height);
         if (mounted.current && version === photoVersion.current)
-          setPhoto(canvas.toDataURL("image/jpeg", 0.9));
+          setPhoto(canvas.toDataURL("image/jpeg", 0.74));
       } finally {
         URL.revokeObjectURL(url);
       }
@@ -89,7 +87,14 @@ export default function NightPass() {
     submitting.current = true;
     const passPhoto = photo;
     try {
-      const result = await register.mutateAsync({ ...parsed.data, photo });
+      setRegistering(true);
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...parsed.data, photo }),
+      });
+      const result = await response.json() as { id?: number; error?: string };
+      if (!response.ok || !result.id) throw new Error(result.error || "Registration failed");
       if (mounted.current)
         setPass({ guest: parsed.data, photo: passPhoto, id: result.id });
     } catch (cause) {
@@ -100,6 +105,7 @@ export default function NightPass() {
             : "Couldn't save your spot. Please try again."
         );
     } finally {
+      if (mounted.current) setRegistering(false);
       submitting.current = false;
     }
   }
@@ -111,12 +117,13 @@ export default function NightPass() {
     try {
       const pdf = await createPassPdf(pass.guest, pass.photo, pass.id);
       downloadPassPdf(pdf, pass.guest.rollNo);
-      await uploadPass.mutateAsync({
-        id: pass.id,
-        name: pass.guest.name,
-        rollNo: pass.guest.rollNo,
-        pdf: await blobToDataUrl(pdf),
+      const response = await fetch("/api/pass", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: pass.guest.name, rollNo: pass.guest.rollNo, pdf: await blobToDataUrl(pdf) }),
       });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(result.error || "Pass backup failed");
     } catch (cause) {
       if (mounted.current)
         setError(
@@ -136,7 +143,6 @@ export default function NightPass() {
     setPhoto("");
     setPhotoBusy(false);
     setError("");
-    register.reset();
   }
 
   return (
@@ -232,7 +238,7 @@ export default function NightPass() {
           noValidate
           aria-describedby={error ? `${id}-error` : undefined}
         >
-          <fieldset className="np-fields" disabled={register.isPending}>
+          <fieldset className="np-fields" disabled={registering}>
             <div className="np-field">
               <label className="np-label" htmlFor={`${id}-name`}>
                 FULL NAME
@@ -352,12 +358,12 @@ export default function NightPass() {
             <button
               className="np-submit"
               type="submit"
-              disabled={register.isPending || photoBusy}
+              disabled={registering || photoBusy}
             >
-              {register.isPending
+              {registering
                 ? "SAVING YOUR SPOT…"
                 : "REGISTER & GET MY PASS"}
-              {register.isPending && (
+              {registering && (
                 <Loader2 className="np-loading" size={18} />
               )}
             </button>
