@@ -14,6 +14,7 @@ export default function NightPass() {
   const mounted = useRef(true);
   const photoVersion = useRef(0);
   const submitting = useRef(false);
+  const savingPass = useRef(false);
   const [guest, setGuest] = useState<Guest>(emptyGuest);
   const [photo, setPhoto] = useState("");
   const [photoBusy, setPhotoBusy] = useState(false);
@@ -136,8 +137,8 @@ export default function NightPass() {
   }
 
   async function savePass() {
-    if (!pass || !passPdf || exporting) return;
-    downloadPassPdf(passPdf, pass.guest.rollNo);
+    if (!pass || !passPdf || exporting || savingPass.current) return;
+    savingPass.current = true;
     setExporting(true);
     setError("");
     try {
@@ -148,6 +149,9 @@ export default function NightPass() {
       });
       const result = await response.json() as { error?: string };
       if (!response.ok) throw new Error(result.error || "Pass backup failed");
+      // The PDF is safely stored once before the device saves its own copy.
+      // This also makes fast repeat taps a no-op while the upload is in flight.
+      downloadPassPdf(passPdf, pass.guest.rollNo);
     } catch (cause) {
       if (mounted.current)
         setError(
@@ -157,6 +161,7 @@ export default function NightPass() {
         );
     } finally {
       if (mounted.current) setExporting(false);
+      savingPass.current = false;
     }
   }
 
