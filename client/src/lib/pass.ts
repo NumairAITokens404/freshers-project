@@ -101,7 +101,13 @@ export async function createPassPdf(guest: Guest, photo: string, id: number) {
 export function downloadPassPdf(blob: Blob, rollNo: string) {
   const filename = `${EVENT.title}-pass-${rollNo}.pdf`;
   const file = new File([blob], filename, { type: "application/pdf" });
+  // iPhone Safari does not reliably honour an anchor's `download` attribute for
+  // Blob URLs, so its native sheet is the dependable way to save the pass.
+  // Do not enable it on macOS, Android, or Windows: those browsers should
+  // download the PDF immediately instead of opening a share picker.
+  const isIPhone = /iPhone/i.test(navigator.userAgent);
   if (
+    isIPhone &&
     typeof navigator.share === "function" &&
     typeof navigator.canShare === "function" &&
     navigator.canShare({ files: [file] })

@@ -66,4 +66,10 @@ export const memories: Memory[] = [
     image: "/images/freshers/timeline/memory-10.jpeg",
     alt: "Friends laughing together in a black and white photo",
   },
+  {
+    label: "ONE BIG CREW",
+    copy: "One frame, all the people who made the year feel bigger.",
+    image: "/images/freshers/timeline/memory-11.jpeg",
+    alt: "CSB students gathered together at Techkriti",
+  },
 ];

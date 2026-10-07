@@ -1,6 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 import { GlowCard } from "@/components/ui/spotlight-card";
-import { memories } from "@/lib/memories";
+import { memories, type Memory } from "@/lib/memories";
+
+function MemoryImage({ memory }: { memory: Memory }) {
+  const [failedToLoad, setFailedToLoad] = useState(false);
+
+  if (!memory.image || failedToLoad) {
+    return (
+      <>
+        <span className="memory-film-lines" aria-hidden="true" />
+        <p>
+          A MEMORY
+          <br />
+          COMING SOON
+        </p>
+      </>
+    );
+  }
+
+  return (
+    <img
+      src={memory.image}
+      alt={memory.alt ?? memory.label}
+      // The rail is transformed/pinned while it scrolls. Eagerly loading these
+      // small, local JPEGs avoids mobile browsers deferring them indefinitely.
+      loading="eager"
+      decoding="async"
+      draggable={false}
+      onError={() => setFailedToLoad(true)}
+    />
+  );
+}
 
 export default function MemoryTimeline() {
   const rail = useRef<HTMLDivElement>(null);
@@ -88,9 +118,9 @@ export default function MemoryTimeline() {
           </h2>
           <div className="timeline-aside">
             <p>
-              Ten little windows into our year.
+              Eleven little windows into our year.
               <br />
-              The photos are on their way.
+              The moments are still with us.
             </p>
             <div
               className="timeline-controls"
@@ -141,26 +171,7 @@ export default function MemoryTimeline() {
                   glowColor={index % 2 ? "green" : "purple"}
                 >
                   <div className="memory-card__image">
-                    {memory.image ? (
-                      <img
-                        src={memory.image}
-                        alt={memory.alt ?? memory.label}
-                        loading="lazy"
-                        draggable={false}
-                      />
-                    ) : (
-                      <>
-                        <span
-                          className="memory-film-lines"
-                          aria-hidden="true"
-                        />
-                        <p>
-                          A MEMORY
-                          <br />
-                          COMING SOON
-                        </p>
-                      </>
-                    )}
+                    <MemoryImage memory={memory} />
                   </div>
                   <div className="memory-card__copy">
                     <h3>{memory.label}</h3>
