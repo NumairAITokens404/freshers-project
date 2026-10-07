@@ -25,7 +25,7 @@ export default function DaySchedule() {
         ))}
       </ol>
       <p className="day-schedule__note">
-        Freshers: 9:30 AM–12:30 PM · Lunch and Carpe Diem are post-event.
+        Freshers: 9:30 AM–12:30 PM · Lunch and Round Two are post-event.
       </p>
     </GlowCard>
   );
