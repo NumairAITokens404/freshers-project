@@ -28,7 +28,7 @@ export default function Home() {
     <div className="static-night">
       <audio
         ref={audioRef}
-        src="/audio/beauty-and-a-beat.mp3"
+        src="/audio/the-disco-song.mp3"
         loop
         preload="metadata"
       />

@@ -34,7 +34,7 @@ export default function NightRegistration() {
               ],
               [
                 "What should I wear?",
-                "Whatever makes you feel like you. Chrome, sparkle, and bold colours are encouraged, never required.",
+                "Girls — crop top lehenga. Boys — Formals.",
               ],
               [
                 "Is the schedule final?",
